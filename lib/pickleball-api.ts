@@ -164,6 +164,35 @@ export async function updateSessionCost(sessionId: string, totalCost: number, at
   if (playerError) throw new Error(playerError.message)
 }
 
+export async function updateSessionDetails(sessionId: string, totalCost: number, playerIds: string[]) {
+  const costShare = playerIds.length > 0 ? totalCost / playerIds.length : 0
+  const { error: sessionError } = await db()
+    .from('sessions')
+    .update({ total_cost: totalCost })
+    .eq('id', sessionId)
+
+  if (sessionError) throw new Error(sessionError.message)
+
+  const { error: deleteError } = await db()
+    .from('session_players')
+    .delete()
+    .eq('session_id', sessionId)
+
+  if (deleteError) throw new Error(deleteError.message)
+
+  if (playerIds.length === 0) return
+
+  const { error: insertError } = await db().from('session_players').insert(
+    playerIds.map(playerId => ({
+      session_id: sessionId,
+      player_id: playerId,
+      cost_share: costShare,
+    }))
+  )
+
+  if (insertError) throw new Error(insertError.message)
+}
+
 export async function createFundExpense(input: CreateFundExpenseInput) {
   const { error } = await db().from('fund_expenses').insert({
     amount: input.amount,
@@ -180,13 +209,21 @@ export async function deleteFundExpense(id: string) {
 }
 
 export async function createMatchPayment(input: CreateMatchPaymentInput) {
-  const { error } = await db().from('match_payments').insert({
-    match_id: input.matchId,
-    player_id: input.playerId,
-    amount: input.amount,
-    paid_at: input.paidAt,
-    note: input.note,
-  })
+  await createMatchPayments([input])
+}
+
+export async function createMatchPayments(inputs: CreateMatchPaymentInput[]) {
+  if (inputs.length === 0) return
+
+  const { error } = await db().from('match_payments').insert(
+    inputs.map(input => ({
+      match_id: input.matchId,
+      player_id: input.playerId,
+      amount: input.amount,
+      paid_at: input.paidAt,
+      note: input.note,
+    }))
+  )
 
   if (error) throw new Error(error.message)
 }

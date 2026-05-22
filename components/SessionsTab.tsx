@@ -57,7 +57,7 @@ export function SessionsTab({ sessions, sessionPlayers, players, isAdmin, onNewS
                       <button
                         onClick={() => onEditSession(sess)}
                         className="text-gray-300 hover:text-indigo-500 transition-colors text-sm leading-none"
-                        title="Sửa chi phí"
+                        title="Sửa buổi chơi"
                       >
                         ✏️
                       </button>

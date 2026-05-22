@@ -48,7 +48,7 @@ export function FundExpenseModal({ onClose, onError, onSaved }: FundExpenseModal
           type="text"
           value={note}
           onChange={event => setNote(event.target.value)}
-          placeholder="Mua bóng, nước..."
+          placeholder="Mua bóng, mua nước, đi ăn uống..."
           autoFocus
           required
         />
@@ -81,7 +81,7 @@ export function FundExpenseModal({ onClose, onError, onSaved }: FundExpenseModal
             disabled={saving || !note.trim() || !amount || Number(amount) <= 0 || !spentAt}
             className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 disabled:opacity-50 transition-colors"
           >
-            {saving ? 'Đang lưu...' : 'Lưu khoản chi'}
+            {saving ? 'Đang lưu...' : 'Tạo khoản chi'}
           </button>
         </div>
       </form>

@@ -4,7 +4,10 @@ import { EditSessionModal } from '@/components/modals/EditSessionModal'
 import { FundExpenseModal } from '@/components/modals/FundExpenseModal'
 import { LoginModal } from '@/components/modals/LoginModal'
 import { MatchModal } from '@/components/modals/MatchModal'
-import { MatchPaymentModal } from '@/components/modals/MatchPaymentModal'
+import {
+  MatchPaymentModal,
+  type MatchPaymentDebtInput,
+} from '@/components/modals/MatchPaymentModal'
 import { SessionModal } from '@/components/modals/SessionModal'
 import type { Match, Player, Session, SessionPlayer } from '@/lib/types'
 
@@ -16,8 +19,8 @@ export type ActiveModal =
   | { type: 'fund-expense' }
   | {
       type: 'match-payment'
-      match: Match
       player: Player
+      debts: MatchPaymentDebtInput[]
       due: number
       paid: number
       remaining: number
@@ -95,18 +98,13 @@ export function PickleballModalHost({
   }
 
   if (activeModal.type === 'match-payment') {
-    const matchDate =
-      sessions.find(session => session.id === activeModal.match.session_id)?.date ??
-      activeModal.match.created_at
-
     return (
       <MatchPaymentModal
-        match={activeModal.match}
         player={activeModal.player}
+        debts={activeModal.debts}
         due={activeModal.due}
         paid={activeModal.paid}
         remaining={activeModal.remaining}
-        matchDate={matchDate}
         onClose={onClose}
         onError={onError}
         onSaved={onSaved}
@@ -118,6 +116,7 @@ export function PickleballModalHost({
     return (
       <EditSessionModal
         session={activeModal.session}
+        players={players}
         sessionPlayers={sessionPlayers}
         onClose={onClose}
         onError={onError}

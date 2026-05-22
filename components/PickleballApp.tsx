@@ -146,7 +146,6 @@ function PickleballClientApp() {
 
         {!loading && tab === 'fund' && (
           <FundTab
-            contributions={contributions}
             fundExpenses={fundExpenses}
             matches={matches}
             matchPayments={matchPayments}
@@ -157,8 +156,14 @@ function PickleballClientApp() {
             onCollectMatchPayment={debt =>
               setActiveModal({
                 type: 'match-payment',
-                match: debt.match,
                 player: debt.player,
+                debts: debt.debts.map(item => ({
+                  match: item.match,
+                  due: item.due,
+                  paid: item.paid,
+                  remaining: item.remaining,
+                  matchDate: item.matchDate,
+                })),
                 due: debt.due,
                 paid: debt.paid,
                 remaining: debt.remaining,
