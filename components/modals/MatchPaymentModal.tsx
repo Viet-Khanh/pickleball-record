@@ -16,7 +16,10 @@ export type MatchPaymentDebtInput = {
 type MatchPaymentModalProps = {
   player: Player
   debts: MatchPaymentDebtInput[]
-  due: number
+  fundDue: number
+  winnerDue: number
+  winCredit: number
+  required: number
   paid: number
   remaining: number
   onClose: () => void
@@ -31,7 +34,10 @@ function today() {
 export function MatchPaymentModal({
   player,
   debts,
-  due,
+  fundDue,
+  winnerDue,
+  winCredit,
+  required,
   paid,
   remaining,
   onClose,
@@ -93,10 +99,13 @@ export function MatchPaymentModal({
           <p>
             Tổng hợp <span className="font-semibold text-gray-800">{debts.length} trận</span>
           </p>
-          <div className="flex gap-3 mt-1 text-xs flex-wrap">
-            <span>Phải đóng: <span className="font-semibold text-red-500">{fmt(due)}</span></span>
-            <span>Đã đóng: <span className="font-semibold text-emerald-600">{fmt(paid)}</span></span>
-            <span>Còn: <span className="font-semibold text-amber-600">{fmt(remaining)}</span></span>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <PaymentMetric label="Tổng phải đóng" value={fmt(fundDue)} tone="amber" />
+            <PaymentMetric label="Số tiền thắng" value={fmt(winCredit)} tone="emerald" />
+            <PaymentMetric label="Số tiền thua" value={fmt(winnerDue)} tone="red" />
+            <PaymentMetric label="Cần đóng" value={fmt(required)} tone="indigo" />
+            <PaymentMetric label="Đã đóng" value={fmt(paid)} tone="blue" />
+            <PaymentMetric label="Còn lại" value={fmt(remaining)} tone={remaining > 0 ? 'red' : 'emerald'} />
           </div>
         </div>
         {unpaidDebts.length > 0 && (
@@ -104,7 +113,7 @@ export function MatchPaymentModal({
             {visibleDebts.map(debt => (
               <div key={debt.match.id} className="px-3 py-2 flex justify-between text-xs text-gray-500">
                 <span>Trận {fmtDate(debt.matchDate)}</span>
-                <span className="text-amber-600 font-medium">Còn {fmt(debt.remaining)}</span>
+                <span className="text-amber-600 font-medium">Cần đóng {fmt(debt.remaining)}</span>
               </div>
             ))}
             {hiddenDebtCount > 0 && (
@@ -160,5 +169,30 @@ export function MatchPaymentModal({
         </div>
       </form>
     </Modal>
+  )
+}
+
+function PaymentMetric({
+  label,
+  value,
+  tone,
+}: {
+  label: string
+  value: string
+  tone: 'amber' | 'emerald' | 'red' | 'indigo' | 'blue'
+}) {
+  const toneClass = {
+    amber: 'border-amber-100 bg-amber-50 text-amber-700',
+    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    red: 'border-red-100 bg-red-50 text-red-600',
+    indigo: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+    blue: 'border-blue-100 bg-blue-50 text-blue-700',
+  }[tone]
+
+  return (
+    <div className={`rounded-xl border px-3 py-2 ${toneClass}`}>
+      <p className="text-[11px] font-medium opacity-75">{label}</p>
+      <p className="mt-1 text-sm font-bold leading-tight">{value}</p>
+    </div>
   )
 }

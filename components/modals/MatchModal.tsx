@@ -69,7 +69,17 @@ export function MatchModal({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (team1.length === 0 || team2.length === 0 || !amount || Number(amount) <= 0) return
+    const matchAmount = Number(amount)
+    const winnerAmount = winAmount ? Number(winAmount) : 0
+    if (
+      team1.length === 0 ||
+      team2.length === 0 ||
+      amount === '' ||
+      matchAmount < 0 ||
+      winnerAmount < 0
+    ) {
+      return
+    }
 
     setSaving(true)
     try {
@@ -77,8 +87,8 @@ export function MatchModal({
         sessionId: sessionId || null,
         team1PlayerIds: team1,
         team2PlayerIds: team2,
-        amount: Number(amount),
-        winAmount: Number(winAmount),
+        amount: matchAmount,
+        winAmount: winnerAmount,
         winner,
       })
       onSaved()
@@ -92,7 +102,8 @@ export function MatchModal({
 
   const losingTeam = winner === 'team1' ? team2 : team1
   const winningTeam = winner === 'team1' ? team1 : team2
-  const showLoseShare = Number(amount) > 0 && losingTeam.length > 0
+  const totalLoserCharge = Number(amount || 0) + Number(winAmount || 0)
+  const showLoseShare = totalLoserCharge > 0 && losingTeam.length > 0
   const showWinShare = Number(winAmount) > 0 && winningTeam.length > 0
 
   return (
@@ -304,7 +315,12 @@ export function MatchModal({
             <div className="mt-2 flex gap-3 text-xs font-medium flex-wrap">
               {showLoseShare && (
                 <span className="text-red-500">
-                  Thua đóng: {fmt(Number(amount) / losingTeam.length)}/người
+                  Thua đóng: {fmt(totalLoserCharge / losingTeam.length)}/người
+                </span>
+              )}
+              {Number(amount) > 0 && losingTeam.length > 0 && (
+                <span className="text-amber-600">
+                  Vào quỹ: {fmt(Number(amount) / losingTeam.length)}/người
                 </span>
               )}
               {showWinShare && (
@@ -327,7 +343,12 @@ export function MatchModal({
           <button
             type="submit"
             disabled={
-              saving || team1.length === 0 || team2.length === 0 || !amount || Number(amount) <= 0
+              saving ||
+              team1.length === 0 ||
+              team2.length === 0 ||
+              amount === '' ||
+              Number(amount) < 0 ||
+              (winAmount !== '' && Number(winAmount) < 0)
             }
             className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
           >

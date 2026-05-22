@@ -1,5 +1,5 @@
 import type { Match, Session, Player } from '@/lib/types'
-import { fmt, fmtDate } from '@/lib/utils'
+import { fmt, fmtDate, losingPlayerIds, matchLoserCharge, winningPlayerIds } from '@/lib/utils'
 
 interface Props {
   matches: Match[]
@@ -34,10 +34,10 @@ export function MatchesTab({ matches, sessions, players, isAdmin, onNewMatch, on
         </div>
       ) : (
         matches.map(match => {
-          const losing = match.winner === 'team1' ? match.team2_player_ids : match.team1_player_ids
-          const winning = match.winner === 'team1' ? match.team1_player_ids : match.team2_player_ids
-          const perLoser = Number(match.amount) / losing.length
-          const perWinner = Number(match.win_amount ?? 0) / winning.length
+          const losing = losingPlayerIds(match)
+          const winning = winningPlayerIds(match)
+          const perLoser = losing.length > 0 ? matchLoserCharge(match) / losing.length : 0
+          const perWinner = winning.length > 0 ? Number(match.win_amount ?? 0) / winning.length : 0
           const sessInfo = sessions.find(s => s.id === match.session_id)
           return (
             <div key={match.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
@@ -46,7 +46,7 @@ export function MatchesTab({ matches, sessions, players, isAdmin, onNewMatch, on
                   {sessInfo ? fmtDate(sessInfo.date) : fmtDate(match.created_at)}
                 </p>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-amber-600">{fmt(match.amount)}</p>
+                  <p className="text-sm font-bold text-amber-600">{fmt(matchLoserCharge(match))}</p>
                   {isAdmin && (
                     <button
                       onClick={() => onDeleteMatch(match.id)}
@@ -78,7 +78,9 @@ export function MatchesTab({ matches, sessions, players, isAdmin, onNewMatch, on
               </div>
               <div className="mt-2 flex gap-4 text-xs">
                 <span className="text-gray-500">Thua đóng: <span className="text-red-600 font-semibold">{fmt(perLoser)}</span>/người</span>
-                <span className="text-gray-500">Thắng nhận: <span className="text-emerald-600 font-semibold">+{fmt(perWinner)}</span>/người</span>
+                {Number(match.win_amount ?? 0) > 0 && (
+                  <span className="text-gray-500">Thắng nhận: <span className="text-emerald-600 font-semibold">+{fmt(perWinner)}</span>/người</span>
+                )}
               </div>
             </div>
           )

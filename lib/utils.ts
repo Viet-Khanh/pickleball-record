@@ -21,10 +21,14 @@ export function winningPlayerIds(match: Match) {
   return match.winner === 'team1' ? match.team1_player_ids : match.team2_player_ids
 }
 
+export function matchLoserCharge(match: Match) {
+  return Number(match.amount) + Number(match.win_amount ?? 0)
+}
+
 export function matchPenalties(pid: string, matches: Match[]) {
   return matches.reduce((s, m) => {
     const losing = losingPlayerIds(m)
-    return losing.includes(pid) ? s + Number(m.amount) / losing.length : s
+    return losing.includes(pid) ? s + matchLoserCharge(m) / losing.length : s
   }, 0)
 }
 

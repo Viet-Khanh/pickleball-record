@@ -21,7 +21,10 @@ export type ActiveModal =
       type: 'match-payment'
       player: Player
       debts: MatchPaymentDebtInput[]
-      due: number
+      fundDue: number
+      winnerDue: number
+      winCredit: number
+      required: number
       paid: number
       remaining: number
     }
@@ -102,7 +105,10 @@ export function PickleballModalHost({
       <MatchPaymentModal
         player={activeModal.player}
         debts={activeModal.debts}
-        due={activeModal.due}
+        fundDue={activeModal.fundDue}
+        winnerDue={activeModal.winnerDue}
+        winCredit={activeModal.winCredit}
+        required={activeModal.required}
         paid={activeModal.paid}
         remaining={activeModal.remaining}
         onClose={onClose}

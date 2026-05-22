@@ -164,7 +164,10 @@ function PickleballClientApp() {
                   remaining: item.remaining,
                   matchDate: item.matchDate,
                 })),
-                due: debt.due,
+                fundDue: debt.fundDue,
+                winnerDue: debt.winnerDue,
+                winCredit: debt.winCredit,
+                required: debt.required,
                 paid: debt.paid,
                 remaining: debt.remaining,
               })
