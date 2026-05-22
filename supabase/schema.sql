@@ -36,9 +36,13 @@ create table if not exists matches (
   team1_player_ids uuid[] not null,
   team2_player_ids uuid[] not null,
   amount numeric not null check (amount >= 0),
+  win_amount numeric not null default 0 check (win_amount >= 0),
   winner text not null check (winner in ('team1', 'team2')),
   created_at timestamptz default now()
 );
+
+-- Nếu bảng matches đã tồn tại, chạy lệnh này để thêm cột win_amount:
+-- alter table matches add column if not exists win_amount numeric not null default 0 check (win_amount >= 0);
 
 -- Tắt RLS để dùng nội bộ (anon key có thể đọc/ghi)
 alter table players disable row level security;
