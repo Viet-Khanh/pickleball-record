@@ -41,6 +41,24 @@ create table if not exists matches (
   created_at timestamptz default now()
 );
 
+create table if not exists fund_expenses (
+  id uuid default gen_random_uuid() primary key,
+  amount numeric not null check (amount > 0),
+  note text not null,
+  spent_at date not null default current_date,
+  created_at timestamptz default now()
+);
+
+create table if not exists match_payments (
+  id uuid default gen_random_uuid() primary key,
+  match_id uuid references matches(id) on delete cascade not null,
+  player_id uuid references players(id) on delete cascade not null,
+  amount numeric not null check (amount > 0),
+  note text,
+  paid_at date not null default current_date,
+  created_at timestamptz default now()
+);
+
 -- Nếu bảng matches đã tồn tại, chạy lệnh này để thêm cột win_amount:
 -- alter table matches add column if not exists win_amount numeric not null default 0 check (win_amount >= 0);
 
@@ -50,3 +68,5 @@ alter table fund_contributions disable row level security;
 alter table sessions disable row level security;
 alter table session_players disable row level security;
 alter table matches disable row level security;
+alter table fund_expenses disable row level security;
+alter table match_payments disable row level security;

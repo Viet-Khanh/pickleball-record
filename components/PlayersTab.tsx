@@ -1,18 +1,24 @@
 import Image from 'next/image'
-import type { Player, Contribution, SessionPlayer, Match } from '@/lib/types'
-import { fmt, fmtDate, getBalance, matchPenalties, matchEarnings } from '@/lib/utils'
+import type { Player, Contribution, SessionPlayer } from '@/lib/types'
+import { fmt, fmtDate, getBalance } from '@/lib/utils'
 
 interface Props {
   players: Player[]
   contributions: Contribution[]
   sessionPlayers: SessionPlayer[]
-  matches: Match[]
   isAdmin: boolean
   onAddPlayer: () => void
   onContrib: (player: Player) => void
 }
 
-export function PlayersTab({ players, contributions, sessionPlayers, matches, isAdmin, onAddPlayer, onContrib }: Props) {
+export function PlayersTab({
+  players,
+  contributions,
+  sessionPlayers,
+  isAdmin,
+  onAddPlayer,
+  onContrib,
+}: Props) {
   return (
     <div className="mt-4 pb-10 space-y-3">
       {/* QR chuyển tiền */}
@@ -49,15 +55,13 @@ export function PlayersTab({ players, contributions, sessionPlayers, matches, is
         </div>
       ) : (
         players.map(player => {
-          const balance = getBalance(player.id, contributions, sessionPlayers, matches)
+          const balance = getBalance(player.id, contributions, sessionPlayers)
           const totalIn = contributions
             .filter(c => c.player_id === player.id)
             .reduce((s, c) => s + Number(c.amount), 0)
           const sessOut = sessionPlayers
             .filter(sp => sp.player_id === player.id)
             .reduce((s, sp) => s + Number(sp.cost_share), 0)
-          const matchOut = matchPenalties(player.id, matches)
-          const matchIn = matchEarnings(player.id, matches)
           const recentContribs = contributions.filter(c => c.player_id === player.id).slice(0, 3)
           return (
             <div key={player.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -67,8 +71,6 @@ export function PlayersTab({ players, contributions, sessionPlayers, matches, is
                   <div className="flex gap-2 mt-1 text-xs text-gray-400 flex-wrap">
                     <span>Nạp: <span className="text-emerald-600 font-medium">{fmt(totalIn)}</span></span>
                     <span>Sân: <span className="text-amber-600 font-medium">{fmt(sessOut)}</span></span>
-                    {matchIn > 0 && <span>Thắng: <span className="text-blue-500 font-medium">+{fmt(matchIn)}</span></span>}
-                    {matchOut > 0 && <span>Thua: <span className="text-red-500 font-medium">-{fmt(matchOut)}</span></span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">

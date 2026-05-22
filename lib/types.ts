@@ -2,6 +2,22 @@ export type Player = { id: string; name: string; created_at: string }
 export type Contribution = { id: string; player_id: string; amount: number; note: string | null; created_at: string }
 export type Session = { id: string; date: string; total_cost: number; created_at: string }
 export type SessionPlayer = { id: string; session_id: string; player_id: string; cost_share: number }
+export type FundExpense = {
+  id: string
+  amount: number
+  note: string
+  spent_at: string
+  created_at: string
+}
+export type MatchPayment = {
+  id: string
+  match_id: string
+  player_id: string
+  amount: number
+  note: string | null
+  paid_at: string
+  created_at: string
+}
 export type Match = {
   id: string
   session_id: string | null

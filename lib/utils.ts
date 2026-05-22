@@ -13,16 +13,24 @@ export function toggleItem<T>(arr: T[], id: T): T[] {
   return arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id]
 }
 
+export function losingPlayerIds(match: Match) {
+  return match.winner === 'team1' ? match.team2_player_ids : match.team1_player_ids
+}
+
+export function winningPlayerIds(match: Match) {
+  return match.winner === 'team1' ? match.team1_player_ids : match.team2_player_ids
+}
+
 export function matchPenalties(pid: string, matches: Match[]) {
   return matches.reduce((s, m) => {
-    const losing = m.winner === 'team1' ? m.team2_player_ids : m.team1_player_ids
+    const losing = losingPlayerIds(m)
     return losing.includes(pid) ? s + Number(m.amount) / losing.length : s
   }, 0)
 }
 
 export function matchEarnings(pid: string, matches: Match[]) {
   return matches.reduce((s, m) => {
-    const winning = m.winner === 'team1' ? m.team1_player_ids : m.team2_player_ids
+    const winning = winningPlayerIds(m)
     return winning.includes(pid) ? s + Number(m.win_amount ?? 0) / winning.length : s
   }, 0)
 }
@@ -30,8 +38,7 @@ export function matchEarnings(pid: string, matches: Match[]) {
 export function getBalance(
   pid: string,
   contributions: Contribution[],
-  sessionPlayers: SessionPlayer[],
-  matches: Match[]
+  sessionPlayers: SessionPlayer[]
 ) {
   const totalIn = contributions
     .filter(c => c.player_id === pid)
@@ -39,7 +46,7 @@ export function getBalance(
   const totalSessionOut = sessionPlayers
     .filter(sp => sp.player_id === pid)
     .reduce((s, sp) => s + Number(sp.cost_share), 0)
-  return totalIn - totalSessionOut - matchPenalties(pid, matches) + matchEarnings(pid, matches)
+  return totalIn - totalSessionOut
 }
 
 function combinations(arr: number[], k: number): number[][] {
@@ -56,10 +63,10 @@ export function balancedSplit(playerIds: string[], matches: Match[]): [string[],
   const shuffled = [...playerIds].sort(() => Math.random() - 0.5)
   const rates = shuffled.map(id => {
     const won = matches.filter(m =>
-      (m.winner === 'team1' ? m.team1_player_ids : m.team2_player_ids).includes(id)
+      winningPlayerIds(m).includes(id)
     ).length
     const lost = matches.filter(m =>
-      (m.winner === 'team1' ? m.team2_player_ids : m.team1_player_ids).includes(id)
+      losingPlayerIds(m).includes(id)
     ).length
     const total = won + lost
     // Small jitter so equal-strength players get randomised across calls

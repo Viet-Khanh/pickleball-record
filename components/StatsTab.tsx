@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Match, Session, Player, SessionPlayer } from '@/lib/types'
 import { fmtDate, toggleItem } from '@/lib/utils'
 
@@ -6,19 +7,14 @@ interface Props {
   sessions: Session[]
   players: Player[]
   sessionPlayers: SessionPlayer[]
-  statsFrom: string
-  statsTo: string
-  statsSessIds: string[]
-  setStatsFrom: (v: string) => void
-  setStatsTo: (v: string) => void
-  setStatsSessIds: (v: string[]) => void
 }
 
 export function StatsTab({
   matches, sessions, players, sessionPlayers,
-  statsFrom, statsTo, statsSessIds,
-  setStatsFrom, setStatsTo, setStatsSessIds,
 }: Props) {
+  const [statsFrom, setStatsFrom] = useState('')
+  const [statsTo, setStatsTo] = useState('')
+  const [statsSessIds, setStatsSessIds] = useState<string[]>([])
   const hasFilter = statsSessIds.length > 0 || statsFrom || statsTo
 
   const filteredMatches = matches.filter(m => {
